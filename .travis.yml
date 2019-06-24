@@ -1,14 +1,42 @@
 sudo: required # because we'll use docker
 services:
   - docker # we want docker preinstalled
+env:
+  global:
+    - SHA=$(git rev-parse HEAD)
+    # Make sure the GCP CLI doesn't prompt us for an answer on anything
+    - CLOUDSDK_CORE_DISABLE_PROMPTS=1
 before_install: # a series of steps up to running tests
+  # This command takes our encrypted file and places it into our root project folder
   - openssl aes-256-cbc -K $encrypted_0c35eebf403c_key -iv $encrypted_0c35eebf403c_iv -in service-account.json.enc -out service-account.json -d
   # downoload and install the Google SDK
   - curl https://sdk.cloud.google.com | bash > /dev/null;
   # will look at the default install folder of the SDK and source this file
   # a configuration that'll modify our shell inside our Travis CI
   - source $HOME/google-cloud-sdk/path.bash.inc
+  # Install kubectl
   - gcloud components update kubectl
   # Authorization with the SDK and Google Cloud
   # equivalent to IAM on AWS, credentials in the .json file
   - gcloud auth activate-service-account --key-file service-account.json
+  # Need to tell gcloud on which project to work on, these 3 cmds need to be run in the cluster shell too
+  - gcloud config set project k8s-course-244509
+  # Specify the zone
+  - gcloud config set compute/zone europe-west6-a
+  # With which cluster you're working
+  - gcloud container clusters get-credentials multi-cluster
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  # Build the image
+  - docker image build -t docktordick/react-test -f ./client/Dockerfile.dev ./client
+
+# Run the tests
+script:
+# npm automatically enters watch mode so add the hyphens and coverage to print out the report and give Travis the signal how it ran
+- docker container run docktordick/react-test npm test --  --coverage
+
+deploy:
+  provider: script
+  # now specify the command to run (execute our script)
+  script: bash ./deploy.sh
+  on:
+    branch: master
