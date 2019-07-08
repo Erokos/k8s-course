@@ -24,7 +24,7 @@ before_install: # a series of steps up to running tests
   # Specify the zone
   - gcloud config set compute/zone europe-west6-a
   # With which cluster you're working
-  - gcloud container clusters get-credentials CI-Travis-k8s-demo
+  - gcloud container clusters get-credentials demo-k8s-cluster
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   # Build the image
   - docker image build -t docktordick/react-test -f ./client/Dockerfile.dev ./client
