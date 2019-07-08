@@ -20,11 +20,11 @@ before_install: # a series of steps up to running tests
   # equivalent to IAM on AWS, credentials in the .json file
   - gcloud auth activate-service-account --key-file service-account.json
   # Need to tell gcloud on which project to work on, these 3 cmds need to be run in the cluster shell too
-  - gcloud config set project k8s-course-244509
+  - gcloud config set project ci-travis-k8s-demo 
   # Specify the zone
   - gcloud config set compute/zone europe-west6-a
   # With which cluster you're working
-  - gcloud container clusters get-credentials multi-cluster
+  - gcloud container clusters get-credentials CI-Travis-k8s-demo
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   # Build the image
   - docker image build -t docktordick/react-test -f ./client/Dockerfile.dev ./client
