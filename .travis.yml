@@ -30,9 +30,9 @@ before_install: # a series of steps up to running tests
   - docker image build -t docktordick/react-test -f ./client/Dockerfile.dev ./client
 
 # Run the tests
-script:
+#script:
 # npm automatically enters watch mode so add the hyphens and coverage to print out the report and give Travis the signal how it ran
-- docker container run docktordick/react-test npm test --  --coverage
+#- docker container run docktordick/react-test npm test --  --coverage
 
 deploy:
   provider: script
